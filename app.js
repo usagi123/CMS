@@ -5,11 +5,12 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const productRoutes = require('./api/routes/products');
-const orderRoutes = require('./api/routes/orders');
+const clubRoutes = require('./api/routes/clubs');
 
 mongoose.connect('mongodb://imhikarucat:12345abcde@ds117773.mlab.com:17773/cms', {
     useNewUrlParser: true
 })
+mongoose.Promise = global.Promise;
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/products', productRoutes);
-app.use('/orders', orderRoutes);
+app.use('/clubs', clubRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
