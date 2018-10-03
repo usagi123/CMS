@@ -1,17 +1,20 @@
-const Product = require('../models/product');
+const accessAudit = require('../models/accessAudit');
 const mongoose = require('mongoose');
 
-exports.get_all_products = (req, res, next) => {
-    Product.find()
-        .select('name price _id') //Control which data you want to fetch
+exports.get_all_audit = (req, res, next) => {
+    accessAudit.find()
+        .select('-__v') //Control which data you want to fetch
         .exec()
         .then(docs => {
             const response = {
                 count: docs.length,
                 products: docs.map(doc => {
                     return {
-                        name: doc.name,
-                        price: doc.price,
+                        clubId: doc.clubId,
+                        accountId: doc.accountId,
+                        prevLogin: doc.prevLogin,
+                        prevLogout: doc.prevLogout,
+                        prevAction: doc.prevAction,
                         _id: doc._id,
                         request: {
                             type: 'GET',
@@ -28,21 +31,27 @@ exports.get_all_products = (req, res, next) => {
         });
 }
 
-exports.post_product = (req, res, next) => {
-    const product = new Product({
+exports.post_audit = (req, res, next) => {
+    const accessAudit = new AccessAudit({
         _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        price: req.body.price
+        clubId: req.body.clubId,
+        accountId: req.body.accountId,
+        prevLogin: req.body.prevLogin,
+        prevLogout: req.body.prevLogout,
+        prevAction: req.body.prevAction,
     });
-    product
+    accessAudit
         .save()
         .then(result => {
             console.log(result);
             res.status(200).json({
-                message: 'Created product successfully',
-                createdProduct: {
-                    name: result.name,
-                    price: result.price,
+                message: 'Created access audit successfully',
+                createdAudit: {
+                    clubId: result.clubId,
+                    accountId: result.accountId,
+                    prevLogin: result.prevLogin,
+                    prevLogout: result.prevLogout,
+                    prevAction: result.prevAction,
                     _id: result._id,
                     request: {
                         type: 'GET',
@@ -58,15 +67,15 @@ exports.post_product = (req, res, next) => {
 }
 
 exports.get_by_id = (req, res, next) => {
-    const id = req.params.productId;
-    Product.findById(id)
-        .select('name price _id')
+    const id = req.params.accessAuditId;
+    AccessAudit.findById(id)
+        .select('-__v')
         .exec()
         .then(doc => {
             console.log("From database", doc);
             if (doc) {
                 res.status(200).json({
-                    product: doc,
+                    access_audit: doc,
                     request: {
                         type: 'GET',
                         url: req.protocol + '://' + req.get('host') + req.originalUrl
@@ -82,42 +91,4 @@ exports.get_by_id = (req, res, next) => {
             console.log(err);
             res.status(500).json({error: err})
         }); 
-}
-
-exports.patch_product = (req, res, next) => {
-    const id = req.params.productId;
-    const updateOps = {};
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
-    }
-    Product.update({_id: id}, {$set: updateOps})
-        .exec()
-        .then(result => {
-            res.status(200).json({
-                message: 'Product updated',
-                request: {
-                    type: 'GET',
-                    url: req.protocol + '://' + req.get('host') + req.originalUrl
-                }
-            })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({error:err});
-        });
-}
-
-exports.delete_product = (req, res, next) => {
-    const id = req.params.productId;
-    Product.remove({_id: id})
-        .exec()
-        .then(result => {
-            res.status(200).json({
-                message: 'Product deleted'
-            })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({error: err});
-        });
 }

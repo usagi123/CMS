@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
 
 const productRoutes = require('./api/routes/products');
 const userRoutes = require('./api/routes/users');
+const clubRoutes = require('./api/routes/clubs');
+const scheduleRoutes = require('./api/routes/schedules');
+const accountRoutes = require('./api/routes/accounts');
+const accessAuditRoutes = require('./api/routes/accessAudits');
 
 mongoose.connect('mongodb://imhikarucat:12345abcde@ds117773.mlab.com:17773/cms', {
     useCreateIndex: true,
@@ -29,7 +33,10 @@ app.use((req, res, next) => {
 
 app.use('/products', productRoutes);
 app.use('/users', userRoutes);
-
+app.use('/clubs', clubRoutes);
+app.use('/schedules', scheduleRoutes);
+app.use('/accounts', accountRoutes);
+app.use('/accessAudits', accessAuditRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
